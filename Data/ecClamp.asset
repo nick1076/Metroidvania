@@ -10,12 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 150d121b2cad5b34495c57018c6f14a1, type: 3}
-  m_Name: ecPlayer
+  m_Name: ecClamp
   m_EditorClassIdentifier: 
-  ecMaxHealth: 20
-  ecSpeed: 12.5
-  ecGravity: -0.5
-  ecJumpPower: 20
-  ecDeceleration: 0.25
-  ecPower: 0
-  ecRange: 0
+  ecMaxHealth: 1000
+  ecSpeed: 20
+  ecGravity: 0
+  ecJumpPower: 0
+  ecDeceleration: 0
+  ecPower: 30

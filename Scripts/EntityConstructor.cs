@@ -5,14 +5,21 @@ using UnityEngine;
 [CreateAssetMenu(fileName="newEntityConstructor",menuName="[SO] New Entity Constructor")]
 public class EntityConstructor : ScriptableObject
 {
-    [Header("Entity Visuals")]
 
-    public List<Sprite> ecDirectionalSprites = new List<Sprite>();
-
-    [Header("Entity Statistics")]
+    [Header("Entity Data - Health")]
 
     public float ecMaxHealth = 20.0f;
+
+    [Header("Entity Data - Movement")]
+
     public float ecSpeed = 0.5f;
-    public float ecSpeedCapX = 5.0f;
+    public float ecGravity = -5.0f;
     public float ecJumpPower = 5;
+    public float ecDeceleration = 0.25f;
+
+    [Header("Entity Data - Specific Variables")]
+
+    public float ecPower = 50.0f;
+    public float ecRange = 5.0f;
+
 }

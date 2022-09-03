@@ -5,32 +5,15 @@ using UnityEngine;
 public class EntityControl : MonoBehaviour
 {
 
-    private Entity eMain;
-    private EntityConstructor eEnt;
+    public Entity eMain;
+    public EntityConstructor eEnt;
 
     private bool w;
     private bool a;
     private bool s;
     private bool d;
+    private bool e;
     private bool space;
-
-    private List<GameObject> eGrounds = new List<GameObject>();
-
-    public void Constructer(EntityConstructor ent, Entity e, bool camera = false)
-    {
-        eEnt = ent;
-        eMain = e;
-
-        if (camera)
-        {
-            this.gameObject.AddComponent<Camera>();
-            Camera cam = this.gameObject.GetComponent<Camera>();
-            cam.orthographic = true;
-            cam.nearClipPlane = 0;
-            cam.orthographicSize = 5;
-            cam.backgroundColor = new Color(0, 0, 0);
-        }
-    }
 
     private void Update()
     {
@@ -75,15 +58,35 @@ public class EntityControl : MonoBehaviour
             d = false;
         }
 
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            e = true;
+            if (eMain.gameObject.GetComponent<EntityPlayer>() != null)
+            {
+                eMain.gameObject.GetComponent<EntityPlayer>().UseAbility();
+            }
+        }
+        else if (Input.GetKeyUp(KeyCode.E))
+        {
+            e = false;
+        }
+
+        bool jumped = false;
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             space = true;
 
-            if (eGrounds.Count > 0)
+            if (eMain.isGrounded())
             {
-                //Jump
+                jumped = true;
                 eMain.MoveY(eEnt.ecJumpPower);
+                eMain.ClearGrounds();
             }
+        }
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            space = false;
         }
 
         if (a)
@@ -99,24 +102,10 @@ public class EntityControl : MonoBehaviour
         {
             eMain.MoveX(0);
         }
-    }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (!eGrounds.Contains(collision.gameObject))
+        if (!jumped && eMain.isGrounded())
         {
-            if (collision.gameObject.tag == "Tag.Ground")
-            {
-                eGrounds.Add(collision.gameObject);
-            }
-        }
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (eGrounds.Contains(collision.gameObject))
-        {
-            eGrounds.Remove(collision.gameObject);
+            eMain.MoveY(0);
         }
     }
 }

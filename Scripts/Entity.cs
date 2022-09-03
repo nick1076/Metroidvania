@@ -5,24 +5,26 @@ using UnityEngine;
 public class Entity : MonoBehaviour
 {
 
-    private EntityConstructor eAssignedConstructor = null;
+    public EntityConstructor eAssignedConstructor = null;
 
-    private List<Sprite> eDirectionalSprites = new List<Sprite>();
     private SpriteRenderer eRenderer;
     private Rigidbody2D ePhysics;
     private BoxCollider2D eCollider;
     private float eCHealth;
     private float eMHealth;
+    private bool eVelocityLocked;
 
-    public void Constructer(EntityConstructor e)
+    private Vector2 movementVelocity;
+    private Vector2 additionalVelocity;
+
+    private List<GameObject> eGrounds = new List<GameObject>();
+
+    private void Start()
     {
-        eAssignedConstructor = e;
-        this.gameObject.name = e.name;
+        this.gameObject.name = eAssignedConstructor.name;
 
-        eDirectionalSprites = e.ecDirectionalSprites;
-
-        eCHealth = e.ecMaxHealth;
-        eMHealth = e.ecMaxHealth;
+        eCHealth = eAssignedConstructor.ecMaxHealth;
+        eMHealth = eAssignedConstructor.ecMaxHealth;
 
         if (gameObject.GetComponent<SpriteRenderer>() == null)
         {
@@ -42,7 +44,7 @@ public class Entity : MonoBehaviour
             ePhysics = GetComponent<Rigidbody2D>();
         }
 
-        if (GetComponent <BoxCollider2D>() == null)
+        if (GetComponent<BoxCollider2D>() == null)
         {
             eCollider = gameObject.AddComponent<BoxCollider2D>();
         }
@@ -51,12 +53,12 @@ public class Entity : MonoBehaviour
             eCollider = GetComponent<BoxCollider2D>();
         }
 
-        ePhysics.gravityScale = 2.5f;
-        ePhysics.freezeRotation = true;
+        StartPost();
+    }
 
-        eCollider.size = new Vector2(1, 1);
+    public virtual void StartPost()
+    {
 
-        eRenderer.sprite = eDirectionalSprites[0];
     }
 
     private void FixedUpdate()
@@ -65,25 +67,143 @@ public class Entity : MonoBehaviour
         {
             return;
         }
+
+        Vector2 newVel = new Vector2();
+
+        if (additionalVelocity.x < 0)
+        {
+            if (additionalVelocity.x + eAssignedConstructor.ecDeceleration > 0)
+            {
+                newVel.x = 0;
+            }
+            else
+            {
+                newVel.x = additionalVelocity.x + eAssignedConstructor.ecDeceleration;
+            }
+        }
+        else if (additionalVelocity.x > 0)
+        {
+            if (additionalVelocity.x - eAssignedConstructor.ecDeceleration < 0)
+            {
+                newVel.x = 0;
+            }
+            else
+            {
+                newVel.x = additionalVelocity.x - eAssignedConstructor.ecDeceleration;
+            }
+        }
+
+        if (additionalVelocity.y < 0)
+        {
+            if (additionalVelocity.y + eAssignedConstructor.ecDeceleration > 0)
+            {
+                newVel.y = 0;
+            }
+            else
+            {
+                newVel.y = additionalVelocity.y + eAssignedConstructor.ecDeceleration;
+            }
+        }
+        else if (additionalVelocity.y > 0)
+        {
+            if (additionalVelocity.y - eAssignedConstructor.ecDeceleration < 0)
+            {
+                newVel.y = 0;
+            }
+            else
+            {
+                newVel.y = additionalVelocity.y - eAssignedConstructor.ecDeceleration;
+            }
+        }
+
+        additionalVelocity = newVel;
+
+        if (!isGrounded())
+        {
+            //Add gravity
+            additionalVelocity.y += eAssignedConstructor.ecGravity;
+        }
+        else
+        {
+            if (additionalVelocity.y < 0)
+            {
+                additionalVelocity.y = 0;
+            }
+        }
+
+        newVel += movementVelocity;
+
+        ePhysics.velocity = newVel;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (!eGrounds.Contains(collision.gameObject))
+        {
+            if (collision.gameObject.tag == "Tag.Ground")
+            {
+                eGrounds.Add(collision.gameObject);
+            }
+            if (collision.gameObject.tag == "Tag.Ceiling")
+            {
+                movementVelocity.y = 0;
+                additionalVelocity.y = 0;
+            }
+            if (collision.gameObject.tag == "Tag.Wall")
+            {
+                additionalVelocity.x = 0;
+            }
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (eGrounds.Contains(collision.gameObject))
+        {
+            eGrounds.Remove(collision.gameObject);
+        }
     }
 
     public void MoveX(float xVel)
     {
+        if (eVelocityLocked)
+        {
+            return;
+        }
+
         if (xVel > 0)
         {
-            eRenderer.sprite = eDirectionalSprites[0];
+            eRenderer.flipX = false;
         }
         else if (xVel < 0)
         {
-            eRenderer.sprite = eDirectionalSprites[1];
+            eRenderer.flipX = true;
         }
 
-        ePhysics.velocity = new Vector2(xVel, ePhysics.velocity.y);
+        movementVelocity = new Vector2(xVel, movementVelocity.y);
+
+        Vector2 combinedVelocity = new Vector2(movementVelocity.x + additionalVelocity.x, movementVelocity.y + additionalVelocity.y);
+
+        ePhysics.velocity = combinedVelocity;
     }
 
     public void MoveY(float yVel)
     {
-        ePhysics.velocity = new Vector2(ePhysics.velocity.x, yVel);
+        if (eVelocityLocked)
+        {
+            return;
+        }
+
+        movementVelocity = new Vector2(movementVelocity.x, yVel);
+
+        Vector2 combinedVelocity = new Vector2(movementVelocity.x + additionalVelocity.x, movementVelocity.y + additionalVelocity.y);
+
+        ePhysics.velocity = combinedVelocity;
+    }
+
+    public void SetAdditionalVelocity(Vector2 vel)
+    {
+        additionalVelocity = vel;
     }
 
     public void Damage(float amount)
@@ -98,6 +218,42 @@ public class Entity : MonoBehaviour
         {
             eCHealth = 0;
         }
+    }
+
+    public void LockVelocity()
+    {
+        eVelocityLocked = true;
+    }
+
+    public void UnLockVelocity()
+    {
+        eVelocityLocked = false;
+    }
+
+    public Rigidbody2D GetPhysics()
+    {
+        return ePhysics;
+    }
+    public Vector2 GetMovementVelocity()
+    {
+        return movementVelocity;
+    }
+
+    public bool isGrounded()
+    {
+        if (eGrounds.Count > 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public void ClearGrounds()
+    {
+        eGrounds.Clear();
     }
 
 }
