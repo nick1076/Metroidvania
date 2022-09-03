@@ -13,10 +13,8 @@ MonoBehaviour:
   m_Name: ecPlayer
   m_EditorClassIdentifier: 
   ecDirectionalSprites:
-  - {fileID: 21300000, guid: e9fea51688e417b449c4a8c0a8abc48a, type: 3}
-  - {fileID: 21300000, guid: e9fea51688e417b449c4a8c0a8abc48a, type: 3}
-  - {fileID: 21300000, guid: e9fea51688e417b449c4a8c0a8abc48a, type: 3}
-  - {fileID: 21300000, guid: e9fea51688e417b449c4a8c0a8abc48a, type: 3}
+  - {fileID: 21300000, guid: f9c5aae9d3edd0c4aa805828d73948ec, type: 3}
+  - {fileID: 21300000, guid: 68baddb8fac1ac04b9c2816839190d60, type: 3}
   ecMaxHealth: 20
   ecSpeed: 12.5
   ecSpeedCapX: 12.5

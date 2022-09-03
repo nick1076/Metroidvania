@@ -71,11 +71,11 @@ public class Entity : MonoBehaviour
     {
         if (xVel > 0)
         {
-            eRenderer.sprite = eDirectionalSprites[1];
+            eRenderer.sprite = eDirectionalSprites[0];
         }
         else if (xVel < 0)
         {
-            eRenderer.sprite = eDirectionalSprites[2];
+            eRenderer.sprite = eDirectionalSprites[1];
         }
 
         ePhysics.velocity = new Vector2(xVel, ePhysics.velocity.y);

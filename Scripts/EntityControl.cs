@@ -27,8 +27,8 @@ public class EntityControl : MonoBehaviour
             Camera cam = this.gameObject.GetComponent<Camera>();
             cam.orthographic = true;
             cam.nearClipPlane = 0;
-            cam.orthographicSize = 8;
-            cam.backgroundColor = new Color(1, 1, 1);
+            cam.orthographicSize = 5;
+            cam.backgroundColor = new Color(0, 0, 0);
         }
     }
 
