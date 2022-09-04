@@ -26,7 +26,15 @@ public class EntityClamp : Entity
         base.StartPost();
         clampPhysics = GetPhysics();
 
-        Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Plane plane = new Plane(Vector3.back, Vector3.zero);
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        Vector3 worldPoint = new Vector3(); // Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        if (plane.Raycast(ray, out float enter))
+        {
+            worldPoint = ray.GetPoint(enter);
+            // Now you have the world position you wanted.
+        }
 
         float AngleRad = Mathf.Atan2(worldPoint.y - this.transform.position.y, worldPoint.x - this.transform.position.x);
         float AngleDeg = (180 / Mathf.PI) * AngleRad;
