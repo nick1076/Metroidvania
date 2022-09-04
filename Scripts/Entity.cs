@@ -19,6 +19,11 @@ public class Entity : MonoBehaviour
 
     private List<GameObject> eGrounds = new List<GameObject>();
 
+    public ParticleSystem eWalkingParticles;
+    public GameObject eParticleOrigin;
+    private bool originDirIsRight = false;
+    private ParticleSystem eCurrentParticles;
+
     private void Start()
     {
         this.gameObject.name = eAssignedConstructor.name;
@@ -134,6 +139,83 @@ public class Entity : MonoBehaviour
         newVel += movementVelocity;
 
         ePhysics.velocity = newVel;
+
+        if (eWalkingParticles != null)
+        {
+            if (isGrounded())
+            {
+                if (newVel.x != 0)
+                {
+                    if (newVel.x > 0)
+                    {
+                        if (eCurrentParticles == null && eParticleOrigin != null)
+                        {
+                            originDirIsRight = true;
+                            eCurrentParticles = Instantiate(eWalkingParticles, eParticleOrigin.transform.position, eParticleOrigin.transform.rotation, eParticleOrigin.transform);
+                            eCurrentParticles.Play();
+                        }
+
+                        if (eCurrentParticles != null)
+                        {
+                            if (!originDirIsRight)
+                            {
+                                eCurrentParticles.transform.parent = null;
+                                eCurrentParticles.loop = false;
+                                eCurrentParticles = null;
+
+                                eCurrentParticles = Instantiate(eWalkingParticles, eParticleOrigin.transform.position, eParticleOrigin.transform.rotation, eParticleOrigin.transform);
+                                eCurrentParticles.Play();
+                                originDirIsRight = true;
+                            }
+
+                            eCurrentParticles.gameObject.transform.localEulerAngles = new Vector3(0, 0, 0);
+                        }
+                    }
+                    else if (newVel.x < 0)
+                    {
+                        if (eCurrentParticles == null && eParticleOrigin != null)
+                        {
+                            eCurrentParticles = Instantiate(eWalkingParticles, eParticleOrigin.transform.position, eParticleOrigin.transform.rotation, eParticleOrigin.transform);
+                            eCurrentParticles.Play();
+                            originDirIsRight = false;
+                        }
+
+                        if (eCurrentParticles != null)
+                        {
+                            if (originDirIsRight)
+                            {
+                                eCurrentParticles.transform.parent = null;
+                                eCurrentParticles.loop = false;
+                                eCurrentParticles = null;
+
+                                eCurrentParticles = Instantiate(eWalkingParticles, eParticleOrigin.transform.position, eParticleOrigin.transform.rotation, eParticleOrigin.transform);
+                                eCurrentParticles.Play();
+                                originDirIsRight = false;
+                            }
+                            eCurrentParticles.gameObject.transform.localEulerAngles = new Vector3(0, -180, 170);
+                        }
+                    }
+                }
+                else
+                {
+                    if (eCurrentParticles != null)
+                    {
+                        eCurrentParticles.transform.parent = null;
+                        eCurrentParticles.loop = false;
+                        eCurrentParticles = null;
+                    }
+                }
+            }
+            else
+            {
+                if (eCurrentParticles != null)
+                {
+                    eCurrentParticles.transform.parent = null;
+                    eCurrentParticles.loop = false;
+                    eCurrentParticles = null;
+                }
+            }
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

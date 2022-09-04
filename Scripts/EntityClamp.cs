@@ -11,6 +11,8 @@ public class EntityClamp : Entity
     public GameObject clampLineOrigin;
     public Material clampMaterial;
 
+    private bool clampDecaying;
+
     public void Cast(Entity source)
     {
         clampSource = source;
@@ -45,32 +47,47 @@ public class EntityClamp : Entity
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Tag.Ground" || collision.tag == "Tag.Wall" || collision.tag == "Tag.Ceiling")
+        if (collision.gameObject.GetComponent<ObjectTags>() != null)
         {
-            //Pull player towards it
-            GameObject temporary = new GameObject();
-            temporary.transform.position = clampSource.transform.position;
-
-            float AngleRad = Mathf.Atan2(clampSource.gameObject.transform.position.y - this.transform.position.y, clampSource.gameObject.transform.position.x - this.transform.position.x);
-            float AngleDeg = (180 / Mathf.PI) * AngleRad;
-            temporary.transform.rotation = Quaternion.Euler(0, 0, AngleDeg - 270);
-
-            Vector2 vel = temporary.transform.up * eAssignedConstructor.ecPower;
-
-            if (clampSource.GetMovementVelocity().y < 0)
+            if (collision.gameObject.GetComponent<ObjectTags>().HasTag("Tag.Clampable"))
             {
-                vel.y =+ Mathf.Abs(clampSource.GetMovementVelocity().y);
+                //Pull player towards it
+                GameObject temporary = new GameObject();
+                temporary.transform.position = clampSource.transform.position;
+
+                float AngleRad = Mathf.Atan2(clampSource.gameObject.transform.position.y - this.transform.position.y, clampSource.gameObject.transform.position.x - this.transform.position.x);
+                float AngleDeg = (180 / Mathf.PI) * AngleRad;
+                temporary.transform.rotation = Quaternion.Euler(0, 0, AngleDeg - 270);
+
+                Vector2 vel = temporary.transform.up * eAssignedConstructor.ecPower;
+
+                if (clampSource.GetMovementVelocity().y < 0)
+                {
+                    vel.y = +Mathf.Abs(clampSource.GetMovementVelocity().y);
+                }
+                else
+                {
+                    vel.y -= clampSource.GetMovementVelocity().y;
+                }
+
+                clampSource.SetAdditionalVelocity(vel);
+
+                Destroy(clampPhysics);
+
+                StartCoroutine(DecayClamp());
             }
-            else
+            else if (collision.gameObject.GetComponent<ObjectTags>().HasTag("Tag.ClampIgnore"))
             {
-                vel.y -= clampSource.GetMovementVelocity().y;
+                return;
             }
-
-            clampSource.SetAdditionalVelocity(vel);
-
-            Destroy(clampPhysics);
-
-            StartCoroutine(DecayClamp());
+        }
+        else
+        {
+            if (!collision.isTrigger)
+            {
+                Destroy(clampPhysics);
+                StartCoroutine(DecayClamp());
+            }
         }
     }
 
@@ -97,12 +114,19 @@ public class EntityClamp : Entity
 
     IEnumerator DecayClamp()
     {
+        if (clampDecaying)
+        {
+            yield break;
+        }
+
+        clampDecaying = true;
+
         float initialWidth = clampLine.startWidth;
         float decayFactor = initialWidth / 100;
 
         for (int i = 0; i < 100; i++)
         {
-            yield return new WaitForSeconds(0.0025f);
+            yield return new WaitForSeconds(0.001f);
 
             clampLine.startWidth = clampLine.startWidth - decayFactor;
             clampLine.endWidth = clampLine.endWidth - decayFactor;
@@ -112,7 +136,7 @@ public class EntityClamp : Entity
 
         for (int i = 0; i < 100; i++)
         {
-            yield return new WaitForSeconds(0.0025f);
+            yield return new WaitForSeconds(0.001f);
 
             this.gameObject.transform.localScale = new Vector3(this.gameObject.transform.localScale.x - scaleDecy, this.gameObject.transform.localScale.y - scaleDecy, this.gameObject.transform.localScale.z - scaleDecy);
         }
