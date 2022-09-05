@@ -124,20 +124,14 @@ public class EntityClamp : Entity
         float initialWidth = clampLine.startWidth;
         float decayFactor = initialWidth / 100;
 
-        for (int i = 0; i < 100; i++)
-        {
-            yield return new WaitForSeconds(0.001f);
-
-            clampLine.startWidth = clampLine.startWidth - decayFactor;
-            clampLine.endWidth = clampLine.endWidth - decayFactor;
-        }
-
         float scaleDecy = this.transform.localScale.x / 100;
 
         for (int i = 0; i < 100; i++)
         {
-            yield return new WaitForSeconds(0.001f);
+            yield return new WaitForSeconds(0.002f);
 
+            clampLine.startWidth = clampLine.startWidth - decayFactor;
+            clampLine.endWidth = clampLine.endWidth - decayFactor;
             this.gameObject.transform.localScale = new Vector3(this.gameObject.transform.localScale.x - scaleDecy, this.gameObject.transform.localScale.y - scaleDecy, this.gameObject.transform.localScale.z - scaleDecy);
         }
 
