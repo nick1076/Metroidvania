@@ -16,6 +16,7 @@ public class EntityConstructor : ScriptableObject
     public float ecGravity = -5.0f;
     public float ecJumpPower = 5;
     public float ecDeceleration = 0.25f;
+    public float ecWallSideGravityMultiplier = 2;
 
     [Header("Entity Data - Specific Variables")]
 

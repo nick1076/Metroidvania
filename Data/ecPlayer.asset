@@ -17,5 +17,6 @@ MonoBehaviour:
   ecGravity: -0.5
   ecJumpPower: 20
   ecDeceleration: 0.25
+  ecWallSideGravityMultiplier: 1.25
   ecPower: 0
   ecRange: 0

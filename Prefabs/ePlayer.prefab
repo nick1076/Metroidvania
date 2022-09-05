@@ -226,7 +226,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 5
   m_Sprite: {fileID: 21300000, guid: f9c5aae9d3edd0c4aa805828d73948ec, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -332,6 +332,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   eAnimator: {fileID: 5121556339322138904}
   ePhysics: {fileID: 5121556339322138881}
+  eAdditionalState: 0
 --- !u!114 &4815874950073132580
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -105,7 +105,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: f4729cf619942ad45a7f22a379199f52, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -177,5 +177,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   eAssignedConstructor: {fileID: 11400000, guid: 79a77533b05e8a141a38853f5215bc38, type: 2}
+  eWalkingParticles: {fileID: 0}
+  eParticleOrigin: {fileID: 0}
   clampLineOrigin: {fileID: 2140929531214654809}
   clampMaterial: {fileID: 2100000, guid: 78448964f7c597746aaff5dbd58c1757, type: 2}

@@ -77,11 +77,12 @@ public class EntityControl : MonoBehaviour
         {
             space = true;
 
-            if (eMain.isGrounded())
+            if (eMain.isGrounded() || eMain.GetWalls().Count > 0)
             {
                 jumped = true;
                 eMain.MoveY(eEnt.ecJumpPower);
                 eMain.ClearGrounds();
+                eMain.ClearWalls();
             }
         }
         if (Input.GetKeyUp(KeyCode.Space))

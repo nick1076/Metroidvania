@@ -18,11 +18,14 @@ public class Entity : MonoBehaviour
     private Vector2 additionalVelocity;
 
     private List<GameObject> eGrounds = new List<GameObject>();
+    private List<GameObject> eWalls = new List<GameObject>();
 
     public ParticleSystem eWalkingParticles;
     public GameObject eParticleOrigin;
     private bool originDirIsRight = false;
     private ParticleSystem eCurrentParticles;
+
+    private float eCurrentGravity;
 
     private void Start()
     {
@@ -30,6 +33,7 @@ public class Entity : MonoBehaviour
 
         eCHealth = eAssignedConstructor.ecMaxHealth;
         eMHealth = eAssignedConstructor.ecMaxHealth;
+        eCurrentGravity = eAssignedConstructor.ecGravity;
 
         if (gameObject.GetComponent<SpriteRenderer>() == null)
         {
@@ -121,18 +125,33 @@ public class Entity : MonoBehaviour
             }
         }
 
+        if (GetWalls().Count > 0)
+        {
+            if (newVel.y <= 0)
+            {
+                newVel.y = eCurrentGravity;
+            }
+            if (additionalVelocity.y <= 0)
+            {
+                additionalVelocity.y = eCurrentGravity;
+            }
+        }
+
         additionalVelocity = newVel;
 
-        if (!isGrounded())
+        if (GetWalls().Count == 0)
         {
-            //Add gravity
-            additionalVelocity.y += eAssignedConstructor.ecGravity;
-        }
-        else
-        {
-            if (additionalVelocity.y < 0)
+            if (!isGrounded())
             {
-                additionalVelocity.y = 0;
+                //Add gravity
+                additionalVelocity.y += eCurrentGravity;
+            }
+            else
+            {
+                if (additionalVelocity.y < 0)
+                {
+                    additionalVelocity.y = 0;
+                }
             }
         }
 
@@ -246,6 +265,57 @@ public class Entity : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.GetComponent<ObjectTags>() != null)
+        {
+            if (collision.gameObject.GetComponent<ObjectTags>().HasTag("Tag.WallJump") && !eWalls.Contains(collision.gameObject))
+            {
+                eWalls.Add(collision.gameObject);
+
+                if (this.gameObject.GetComponent<EntityAnimation>() != null)
+                {
+                    this.gameObject.GetComponent<EntityAnimation>().SetAdditionState(EntityAnimation.EntityStateData.WallSlide);
+
+                    if (eCurrentGravity == eAssignedConstructor.ecGravity)
+                    {
+                        eCurrentGravity = eAssignedConstructor.ecWallSideGravityMultiplier * eAssignedConstructor.ecGravity;
+                        MoveY(0);
+                    }
+                }
+            }
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.GetComponent<ObjectTags>() != null)
+        {
+            if (collision.gameObject.GetComponent<ObjectTags>().HasTag("Tag.WallJump") && eWalls.Contains(collision.gameObject))
+            {
+                eWalls.Remove(collision.gameObject);
+
+                if (eWalls.Count == 0)
+                {
+                    if (eCurrentGravity != eAssignedConstructor.ecGravity)
+                    {
+                        eCurrentGravity = eAssignedConstructor.ecGravity;
+                    }
+                }
+            }
+            else
+            {
+                if (eWalls.Count == 0)
+                {
+                    if (eCurrentGravity != eAssignedConstructor.ecGravity)
+                    {
+                        eCurrentGravity = eAssignedConstructor.ecGravity;
+                    }
+                }
+            }
+        }
+    }
+
     public void MoveX(float xVel)
     {
         if (eVelocityLocked)
@@ -253,13 +323,43 @@ public class Entity : MonoBehaviour
             return;
         }
 
-        if (xVel > 0)
+        if (this.gameObject.GetComponent<EntityAnimation>() != null)
         {
-            eRenderer.flipX = false;
+            if (this.gameObject.GetComponent<EntityAnimation>().GetLatestState() != "JumpFromWall")
+            {
+                if (xVel > 0)
+                {
+                    eRenderer.flipX = false;
+                }
+                else if (xVel < 0)
+                {
+                    eRenderer.flipX = true;
+                }
+            }
+            else
+            {
+                if (xVel > 0)
+                {
+                    eRenderer.flipX = true;
+                }
+                else if (xVel < 0)
+                {
+                    eRenderer.flipX = false;
+                }
+                print("1");
+            }
         }
-        else if (xVel < 0)
+        else
         {
-            eRenderer.flipX = true;
+            print("UH OH");
+            if (xVel > 0)
+            {
+                eRenderer.flipX = false;
+            }
+            else if (xVel < 0)
+            {
+                eRenderer.flipX = true;
+            }
         }
 
         movementVelocity = new Vector2(xVel, movementVelocity.y);
@@ -333,9 +433,19 @@ public class Entity : MonoBehaviour
         }
     }
 
+    public List<GameObject> GetWalls()
+    {
+        return eWalls;
+    }
+
     public void ClearGrounds()
     {
         eGrounds.Clear();
+    }
+
+    public void ClearWalls()
+    {
+        eWalls.Clear();
     }
 
 }
