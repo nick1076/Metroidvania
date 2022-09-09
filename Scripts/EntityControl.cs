@@ -13,6 +13,7 @@ public class EntityControl : MonoBehaviour
     private bool s;
     private bool d;
     private bool e;
+    private bool leftClick;
     private bool space;
 
     private void Update()
@@ -56,6 +57,47 @@ public class EntityControl : MonoBehaviour
         else if (Input.GetKeyUp(KeyCode.D))
         {
             d = false;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            leftClick = true;
+        }
+        else if (Input.GetKeyUp(KeyCode.Mouse0))
+        {
+            leftClick = false;
+        }
+
+        if (leftClick)
+        {
+            if (w)
+            {
+                eMain.Attack(2);
+            }
+            else if(s)
+            {
+                eMain.Attack(3);
+            }
+            else if (d)
+            {
+                eMain.Attack(0);
+            }
+            else if (a)
+            {
+                eMain.Attack(1);
+            }
+        }
+
+        if (leftClick && !w && !a && !s && !d)
+        {
+            if (eMain.GetComponent<SpriteRenderer>().flipX)
+            {
+                eMain.Attack(1);
+            }
+            else
+            {
+                eMain.Attack(0);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.E))

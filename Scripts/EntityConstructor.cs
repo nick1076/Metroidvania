@@ -22,5 +22,6 @@ public class EntityConstructor : ScriptableObject
 
     public float ecPower = 50.0f;
     public float ecRange = 5.0f;
+    public GameObject ecAttack;
 
 }

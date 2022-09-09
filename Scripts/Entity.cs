@@ -22,10 +22,18 @@ public class Entity : MonoBehaviour
 
     public ParticleSystem eWalkingParticles;
     public GameObject eParticleOrigin;
+
+    public Transform eAttackOrigin_Up;
+    public Transform eAttackOrigin_Front;
+    public Transform eAttackOrigin_Back;
+    public Transform eAttackOrigin_Down;
+
     private bool originDirIsRight = false;
     private ParticleSystem eCurrentParticles;
 
     private float eCurrentGravity;
+
+    private GameObject eCurrentAttack;
 
     private void Start()
     {
@@ -316,6 +324,32 @@ public class Entity : MonoBehaviour
         }
     }
 
+    public void Attack(int dire)
+    {
+        if (GetWalls().Count == 0)
+        {
+            if (eCurrentAttack == null)
+            {
+                if (dire == 0)
+                {
+                    eCurrentAttack = Instantiate(eAssignedConstructor.ecAttack, eAttackOrigin_Front.transform.position, eAttackOrigin_Front.rotation, eAttackOrigin_Front.transform);
+                }
+                else if (dire == 1)
+                {
+                    eCurrentAttack = Instantiate(eAssignedConstructor.ecAttack, eAttackOrigin_Back.transform.position, eAttackOrigin_Back.rotation, eAttackOrigin_Back.transform);
+                }
+                else if (dire == 2)
+                {
+                    eCurrentAttack = Instantiate(eAssignedConstructor.ecAttack, eAttackOrigin_Up.transform.position, eAttackOrigin_Up.rotation, eAttackOrigin_Up.transform);
+                }
+                else if (dire == 3)
+                {
+                    eCurrentAttack = Instantiate(eAssignedConstructor.ecAttack, eAttackOrigin_Down.transform.position, eAttackOrigin_Down.rotation, eAttackOrigin_Down.transform);
+                }
+            }
+        }
+    }
+
     public void MoveX(float xVel)
     {
         if (eVelocityLocked)
@@ -346,12 +380,10 @@ public class Entity : MonoBehaviour
                 {
                     eRenderer.flipX = false;
                 }
-                print("1");
             }
         }
         else
         {
-            print("UH OH");
             if (xVel > 0)
             {
                 eRenderer.flipX = false;

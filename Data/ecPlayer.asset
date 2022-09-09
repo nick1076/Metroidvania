@@ -20,3 +20,4 @@ MonoBehaviour:
   ecWallSideGravityMultiplier: 1.25
   ecPower: 0
   ecRange: 0
+  ecAttack: {fileID: 7931969216275505163, guid: 86ceec1ce923e514596b66ef8fe6d9b6, type: 3}
