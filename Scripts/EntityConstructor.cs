@@ -18,6 +18,12 @@ public class EntityConstructor : ScriptableObject
     public float ecDeceleration = 0.25f;
     public float ecWallSideGravityMultiplier = 2;
 
+    [Header("Entity Data - Visuals")]
+
+    public GameObject ecWalkingParticles;
+    public GameObject ecHurtFX;
+    public GameObject ecHealFX;
+
     [Header("Entity Data - Specific Variables")]
 
     public float ecPower = 50.0f;

@@ -20,7 +20,7 @@ public class Entity : MonoBehaviour
     private List<GameObject> eGrounds = new List<GameObject>();
     private List<GameObject> eWalls = new List<GameObject>();
 
-    public ParticleSystem eWalkingParticles;
+    private ParticleSystem eWalkingParticles;
     public GameObject eParticleOrigin;
 
     public Transform eAttackOrigin_Up;
@@ -167,7 +167,7 @@ public class Entity : MonoBehaviour
 
         ePhysics.velocity = newVel;
 
-        if (eWalkingParticles != null)
+        if (eAssignedConstructor.ecWalkingParticles != null)
         {
             if (isGrounded())
             {
@@ -178,7 +178,7 @@ public class Entity : MonoBehaviour
                         if (eCurrentParticles == null && eParticleOrigin != null)
                         {
                             originDirIsRight = true;
-                            eCurrentParticles = Instantiate(eWalkingParticles, eParticleOrigin.transform.position, eParticleOrigin.transform.rotation, eParticleOrigin.transform);
+                            eCurrentParticles = Instantiate(eAssignedConstructor.ecWalkingParticles, eParticleOrigin.transform.position, eParticleOrigin.transform.rotation, eParticleOrigin.transform).GetComponent<ParticleSystem>();
                             eCurrentParticles.Play();
                         }
 
@@ -190,7 +190,7 @@ public class Entity : MonoBehaviour
                                 eCurrentParticles.loop = false;
                                 eCurrentParticles = null;
 
-                                eCurrentParticles = Instantiate(eWalkingParticles, eParticleOrigin.transform.position, eParticleOrigin.transform.rotation, eParticleOrigin.transform);
+                                eCurrentParticles = Instantiate(eAssignedConstructor.ecWalkingParticles, eParticleOrigin.transform.position, eParticleOrigin.transform.rotation, eParticleOrigin.transform).GetComponent<ParticleSystem>();
                                 eCurrentParticles.Play();
                                 originDirIsRight = true;
                             }
@@ -202,7 +202,7 @@ public class Entity : MonoBehaviour
                     {
                         if (eCurrentParticles == null && eParticleOrigin != null)
                         {
-                            eCurrentParticles = Instantiate(eWalkingParticles, eParticleOrigin.transform.position, eParticleOrigin.transform.rotation, eParticleOrigin.transform);
+                            eCurrentParticles = Instantiate(eAssignedConstructor.ecWalkingParticles, eParticleOrigin.transform.position, eParticleOrigin.transform.rotation, eParticleOrigin.transform).GetComponent<ParticleSystem>();
                             eCurrentParticles.Play();
                             originDirIsRight = false;
                         }
@@ -215,7 +215,7 @@ public class Entity : MonoBehaviour
                                 eCurrentParticles.loop = false;
                                 eCurrentParticles = null;
 
-                                eCurrentParticles = Instantiate(eWalkingParticles, eParticleOrigin.transform.position, eParticleOrigin.transform.rotation, eParticleOrigin.transform);
+                                eCurrentParticles = Instantiate(eAssignedConstructor.ecWalkingParticles, eParticleOrigin.transform.position, eParticleOrigin.transform.rotation, eParticleOrigin.transform).GetComponent<ParticleSystem>();
                                 eCurrentParticles.Play();
                                 originDirIsRight = false;
                             }
@@ -293,6 +293,29 @@ public class Entity : MonoBehaviour
                 }
             }
         }
+
+        if (collision.gameObject.GetComponent<ObjectAttack>() != null)
+        {
+            //Damage Entity
+            ObjectAttack attack = collision.gameObject.GetComponent<ObjectAttack>();
+
+            Health(-attack.aDamage);
+
+            if (attack.aEntityPointer != null)
+            {
+                if (attack.aDir == 3)
+                {
+                    if (attack.aEntityPointer.additionalVelocity.y < 0)
+                    {
+                        attack.aEntityPointer.additionalVelocity.y = attack.aPogoForce;
+                    }
+                    else
+                    {
+                        attack.aEntityPointer.additionalVelocity.y += attack.aPogoForce;
+                    }
+                }
+            }
+        }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
@@ -333,21 +356,81 @@ public class Entity : MonoBehaviour
                 if (dire == 0)
                 {
                     eCurrentAttack = Instantiate(eAssignedConstructor.ecAttack, eAttackOrigin_Front.transform.position, eAttackOrigin_Front.rotation, eAttackOrigin_Front.transform);
+
+                    ObjectAttack newAttack = eCurrentAttack.GetComponent<ObjectAttack>();
+                    newAttack.aDir = dire;
+                    newAttack.aEntityPointer = this;
                 }
                 else if (dire == 1)
                 {
                     eCurrentAttack = Instantiate(eAssignedConstructor.ecAttack, eAttackOrigin_Back.transform.position, eAttackOrigin_Back.rotation, eAttackOrigin_Back.transform);
+
+                    ObjectAttack newAttack = eCurrentAttack.GetComponent<ObjectAttack>();
+                    newAttack.aDir = dire;
+                    newAttack.aEntityPointer = this;
                 }
                 else if (dire == 2)
                 {
                     eCurrentAttack = Instantiate(eAssignedConstructor.ecAttack, eAttackOrigin_Up.transform.position, eAttackOrigin_Up.rotation, eAttackOrigin_Up.transform);
+
+                    ObjectAttack newAttack = eCurrentAttack.GetComponent<ObjectAttack>();
+                    newAttack.aDir = dire;
+                    newAttack.aEntityPointer = this;
                 }
-                else if (dire == 3)
+                else if (dire == 3 && !isGrounded())
                 {
                     eCurrentAttack = Instantiate(eAssignedConstructor.ecAttack, eAttackOrigin_Down.transform.position, eAttackOrigin_Down.rotation, eAttackOrigin_Down.transform);
+
+                    ObjectAttack newAttack = eCurrentAttack.GetComponent<ObjectAttack>();
+                    newAttack.aDir = dire;
+                    newAttack.aEntityPointer = this;
                 }
             }
         }
+    }
+
+    public void Health(float health)
+    {
+        if (health < 0)
+        {
+            //Player is being hurt
+            eCHealth += health;
+
+            if (eAssignedConstructor.ecHurtFX != null)
+            {
+                Instantiate(eAssignedConstructor.ecHurtFX, this.transform.position, this.transform.rotation);
+            }
+
+            StartCoroutine(ColorPlayer(new Color(1, 0, 0, 1), 0.1f));
+        }
+        else if (health > 0)
+        {
+            //Player is being healed
+            eCHealth += health;
+
+            if (eAssignedConstructor.ecHealFX != null)
+            {
+                Instantiate(eAssignedConstructor.ecHealFX, this.transform.position, this.transform.rotation);
+            }
+
+            StartCoroutine(ColorPlayer(new Color(0, 1, 0, 1), 0.1f));
+        }
+
+        if (eCHealth > eMHealth)
+        {
+            eCHealth = eMHealth;
+        }
+        else if (eCHealth < 0)
+        {
+            eCHealth = 0;
+        }
+    }
+
+    IEnumerator ColorPlayer(Color color, float time)
+    {
+        eRenderer.color = color;
+        yield return new WaitForSeconds(time);
+        eRenderer.color = new Color(1, 1, 1, 1);
     }
 
     public void MoveX(float xVel)
@@ -418,20 +501,6 @@ public class Entity : MonoBehaviour
     public void SetAdditionalVelocity(Vector2 vel)
     {
         additionalVelocity = vel;
-    }
-
-    public void Damage(float amount)
-    {
-        eCHealth -= amount;
-
-        if (eCHealth > eMHealth)
-        {
-            eCHealth = eMHealth;
-        }
-        else if (eCHealth < 0)
-        {
-            eCHealth = 0;
-        }
     }
 
     public void LockVelocity()
